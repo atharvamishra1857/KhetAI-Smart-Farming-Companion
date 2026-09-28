@@ -10,6 +10,12 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: dashboard
+    description: KhetAI overview data
+  - name: mandi
+    description: Wholesale mandi prices
+  - name: scans
+    description: Crop disease scans
 paths:
   /healthz:
     get:
@@ -24,6 +30,125 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /dashboard-summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get the farmer dashboard summary
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+  /mandi-prices:
+    get:
+      operationId: getMandiPrices
+      tags: [mandi]
+      summary: Get current mandi prices
+      parameters:
+        - in: query
+          name: commodity
+          schema:
+            type: string
+        - in: query
+          name: district
+          schema:
+            type: string
+        - in: query
+          name: state
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        "200":
+          description: Mandi prices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MandiPriceResponse"
+  /scans:
+    get:
+      operationId: listScans
+      tags: [scans]
+      summary: List recent crop scans
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 12
+      responses:
+        "200":
+          description: Recent scans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Scan"
+    post:
+      operationId: createScan
+      tags: [scans]
+      summary: Analyze a crop image for disease
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScanInput"
+      responses:
+        "201":
+          description: Completed crop scan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scan"
+        "400":
+          description: Invalid image
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Diagnosis provider unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /scans/{id}:
+    get:
+      operationId: getScan
+      tags: [scans]
+      summary: Get one crop scan
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Crop scan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scan"
+        "404":
+          description: Scan not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +158,143 @@ components:
           type: string
       required:
         - status
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    DashboardSummary:
+      type: object
+      properties:
+        totalScans:
+          type: integer
+        healthyPlants:
+          type: integer
+        diseasesDetected:
+          type: integer
+        averageConfidence:
+          type: number
+        latestScan:
+          anyOf:
+            - $ref: "#/components/schemas/Scan"
+            - type: "null"
+        topMandiPrice:
+          anyOf:
+            - $ref: "#/components/schemas/MandiPrice"
+            - type: "null"
+      required:
+        - totalScans
+        - healthyPlants
+        - diseasesDetected
+        - averageConfidence
+        - latestScan
+        - topMandiPrice
+    MandiPrice:
+      type: object
+      properties:
+        id:
+          type: string
+        commodity:
+          type: string
+        variety:
+          type: string
+        market:
+          type: string
+        district:
+          type: string
+        state:
+          type: string
+        minPrice:
+          type: number
+        maxPrice:
+          type: number
+        modalPrice:
+          type: number
+        unit:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - commodity
+        - variety
+        - market
+        - district
+        - state
+        - minPrice
+        - maxPrice
+        - modalPrice
+        - unit
+        - updatedAt
+    MandiPriceResponse:
+      type: object
+      properties:
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/MandiPrice"
+        source:
+          type: string
+        lastUpdated:
+          type: string
+        isLive:
+          type: boolean
+      required:
+        - prices
+        - source
+        - lastUpdated
+        - isLive
+    ScanInput:
+      type: object
+      properties:
+        imageData:
+          type: string
+          minLength: 20
+        fileName:
+          type: string
+        crop:
+          type: string
+      required:
+        - imageData
+    Scan:
+      type: object
+      properties:
+        id:
+          type: integer
+        crop:
+          type: string
+        disease:
+          type: string
+        status:
+          type: string
+          enum: [healthy, attention, critical]
+        confidence:
+          type: number
+        summary:
+          type: string
+        treatment:
+          type: array
+          items:
+            type: string
+        prevention:
+          type: array
+          items:
+            type: string
+        imageData:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - crop
+        - disease
+        - status
+        - confidence
+        - summary
+        - treatment
+        - prevention
+        - imageData
+        - createdAt
 

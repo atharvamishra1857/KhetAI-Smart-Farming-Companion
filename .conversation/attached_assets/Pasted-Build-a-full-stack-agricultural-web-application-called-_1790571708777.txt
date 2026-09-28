@@ -1,0 +1,45 @@
+Build a full-stack agricultural web application called "KhetAI" — a smart farming companion for small and marginal farmers in India. The app solves two critical, real problems:
+
+1. **Crop Disease Detection** — Farmers can upload a photo of a sick plant/leaf and get an AI-powered diagnosis with treatment advice.
+2. **Live Mandi Price Discovery** — Farmers see today's wholesale market (mandi) prices for major crops across nearby districts, so they can decide where and when to sell.
+
+---
+
+## TECH STACK
+- **Frontend**: React + Tailwind CSS + Vite
+- **Backend**: Node.js + Express
+- **AI**: Use the Google Gemini Vision API (or OpenAI GPT-4o with image input) for crop disease diagnosis
+- **Mandi Prices**: Use the Indian Government's Open Data API — https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070 (AGMARKNET mandi prices dataset, free, no auth needed for basic calls)
+- **Database**: SQLite (via better-sqlite3) for storing user scan history
+- **Styling**: Tailwind with a custom earth-tone design system
+
+---
+
+## DESIGN SYSTEM (implement exactly)
+- **Background**: #0E1A0F (near-black deep forest green)
+- **Surface**: #162118 (dark card surface)
+- **Primary accent**: #7AC74F (fresh chlorophyll green)
+- **Secondary accent**: #D4A843 (wheat/harvest gold)
+- **Text primary**: #E8F5E1 (soft off-white, cream-green)
+- **Text muted**: #8FA888
+- **Font**: "Mukta" (Google Fonts) for UI text — it's designed for Indian language support and has excellent legibility in Hindi/Marathi too. Pair with "DM Serif Display" for hero headings.
+- **Border radius**: 12px on cards, 8px on buttons, 0 on nav
+- **No gradients as decoration** — use solid fills. Gradients only on the hero section (radial from accent to transparent)
+
+---
+
+## PAGES & FEATURES
+
+### 1. Landing Page (/)
+- Hero: Large headline in DM Serif Display — "आपकी फसल, आपका फैसला" with English subtitle "Your Crop. Your Decision."
+- Subtext: "Detect disease in seconds. Sell at the best mandi price today."
+- Two CTA buttons: "Scan My Crop →" and "Check Mandi Prices →"
+- 3 stat blocks below: "2.3Cr+ Farmers", "600+ Crop Diseases", "₹12,000 avg income saved"
+- A subtle animated leaf/crop illustration using pure CSS (no images)
+- Feature strip: 3 cards — Disease Scan, Mandi Rates, History Log
+
+### 2. Crop Disease Scanner (/scan)
+- File upload component with drag-and-drop (accept jpg, png, webp)
+- Camera capture option (use browser MediaDevices API for mobile)
+- On upload: show image preview + "Scanning..." spinner
+- Send image to backend → backend calls Gemini Vision API with this exact system prompt:

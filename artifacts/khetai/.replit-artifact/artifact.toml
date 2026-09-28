@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "KhetAI"
+description = "A smart farming companion for small and marginal farmers in India, combining crop disease diagnosis with live mandi price discovery and scan history."
+version = "1.0.0"
+id = "artifacts/khetai"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23682
+
+[services.development]
+run = "pnpm --filter @workspace/khetai run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/khetai", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/khetai/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23682"
+BASE_PATH = "/"

@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface ScanInput {
+  /** @minLength 20 */
+  imageData: string;
+  fileName?: string;
+  crop?: string;
 }
