@@ -1,15 +1,17 @@
-# [Project name]
+# KhetAI
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+KhetAI is a smart farming companion for Indian farmers, combining crop disease diagnosis with mandi price discovery and scan history.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
+- `pnpm --filter @workspace/khetai run dev` — run the web app
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Required for crop diagnosis: `GEMINI_API_KEY` — user-provided Gemini API key stored as a workspace secret
 
 ## Stack
 
@@ -22,15 +24,26 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/khetai/src/App.tsx` — responsive web app shell and product routes
+- `artifacts/khetai/src/index.css` — KhetAI earth-tone theme and motion utilities
+- `artifacts/api-server/src/routes/khetai.ts` — dashboard, mandi, and scan API routes
+- `artifacts/api-server/src/lib/diagnosis.ts` — Gemini Vision request and structured diagnosis parsing
+- `artifacts/api-server/src/lib/mandi.ts` — AGMARKNET adapter with explicit reference-rate fallback
+- `lib/db/src/schema/scans.ts` — persisted scan result schema
+- `lib/api-spec/openapi.yaml` — source of truth for API contracts
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Scan history stores structured diagnoses in PostgreSQL; raw uploaded image bytes are not retained.
+- Crop diagnosis uses the direct Gemini API with `GEMINI_API_KEY` because the managed AI integration was not available on the current account.
+- Mandi data attempts AGMARKNET first and returns clearly labeled reference rates when the government feed is unreachable.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Bilingual Hindi/English landing dashboard for crop decisions
+- Mobile-friendly photo upload and camera capture for crop disease diagnosis
+- Mandi price search with commodity, district, and state filters
+- Persistent scan history and detail views
 
 ## User preferences
 

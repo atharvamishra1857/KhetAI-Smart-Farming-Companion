@@ -1,0 +1,1 @@
+- [Direct AI provider fallback](ai-provider-fallback.md) — use workspace secrets for the requested provider when managed AI setup is blocked by account limits.
